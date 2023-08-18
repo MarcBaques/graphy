@@ -13,7 +13,6 @@
 
 using System;
 using UnityEngine;
-using Tayx.Graphy.Audio;
 using Tayx.Graphy.Fps;
 using Tayx.Graphy.Ram;
 using Tayx.Graphy.Utils;
@@ -47,17 +46,13 @@ namespace Tayx.Graphy
         {
             FPS = 0,
             RAM = 1,
-            AUDIO = 2,
-            ADVANCED = 3
+            ADVANCED = 2
         }
 
         public enum ModuleState
         {
             FULL = 0,
-            TEXT = 1,
-            BASIC = 2,
-            BACKGROUND = 3,
-            OFF = 4
+            OFF = 1
         }
 
         public enum ModulePosition
@@ -69,30 +64,12 @@ namespace Tayx.Graphy
             FREE = 4
         }
 
-        public enum LookForAudioListener
-        {
-            ALWAYS,
-            ON_SCENE_LOAD,
-            NEVER
-        }
-
         public enum ModulePreset
         {
-            FPS_BASIC = 0,
-            FPS_TEXT = 1,
-            FPS_FULL = 2,
-
-            FPS_TEXT_RAM_TEXT = 3,
-            FPS_FULL_RAM_TEXT = 4,
-            FPS_FULL_RAM_FULL = 5,
-
-            FPS_TEXT_RAM_TEXT_AUDIO_TEXT = 6,
-            FPS_FULL_RAM_TEXT_AUDIO_TEXT = 7,
-            FPS_FULL_RAM_FULL_AUDIO_TEXT = 8,
-            FPS_FULL_RAM_FULL_AUDIO_FULL = 9,
-
-            FPS_FULL_RAM_FULL_AUDIO_FULL_ADVANCED_FULL = 10,
-            FPS_BASIC_ADVANCED_FULL = 11
+            BASIC = 0,
+            MEMORY = 1,
+            SPECS = 2,
+            FULL = 3
         }
 
         #endregion
@@ -158,26 +135,6 @@ namespace Tayx.Graphy
 
         [Range( 1, 200 )] [SerializeField] private int m_ramTextUpdateRate = 3; // 3 updates per sec.
 
-        // Audio -------------------------------------------------------------------------
-
-        [SerializeField] private ModuleState m_audioModuleState = ModuleState.FULL;
-
-        [SerializeField]
-        private LookForAudioListener m_findAudioListenerInCameraIfNull = LookForAudioListener.ON_SCENE_LOAD;
-
-        [SerializeField] private AudioListener m_audioListener = null;
-
-        [SerializeField] private Color m_audioGraphColor = Color.white;
-
-        [Range( 10, 300 )] [SerializeField] private int m_audioGraphResolution = 81;
-
-        [Range( 1, 200 )] [SerializeField] private int m_audioTextUpdateRate = 3; // 3 updates per sec.
-
-        [SerializeField] private FFTWindow m_FFTWindow = FFTWindow.Blackman;
-
-        [Tooltip( "Must be a power of 2 and between 64-8192" )] [SerializeField]
-        private int m_spectrumSize = 512;
-
         // Advanced ----------------------------------------------------------------------
 
         [SerializeField] private ModulePosition m_advancedModulePosition = ModulePosition.BOTTOM_LEFT;
@@ -196,14 +153,12 @@ namespace Tayx.Graphy
 
         private G_FpsManager m_fpsManager = null;
         private G_RamManager m_ramManager = null;
-        private G_AudioManager m_audioManager = null;
         private G_AdvancedData m_advancedData = null;
 
         private G_FpsMonitor m_fpsMonitor = null;
         private G_RamMonitor m_ramMonitor = null;
-        private G_AudioMonitor m_audioMonitor = null;
 
-        private ModulePreset m_modulePresetState = ModulePreset.FPS_BASIC_ADVANCED_FULL;
+        private ModulePreset m_modulePresetState = ModulePreset.FULL;
 
         #endregion
 
@@ -251,7 +206,6 @@ namespace Tayx.Graphy
                 m_graphModulePosition = value;
                 m_fpsManager.SetPosition( m_graphModulePosition, m_graphModuleOffset );
                 m_ramManager.SetPosition( m_graphModulePosition, m_graphModuleOffset );
-                m_audioManager.SetPosition( m_graphModulePosition, m_graphModuleOffset );
             }
         }
 
@@ -417,103 +371,6 @@ namespace Tayx.Graphy
         public float ReservedRam => m_ramMonitor.ReservedRam;
         public float MonoRam => m_ramMonitor.MonoRam;
 
-        // Audio -------------------------------------------------------------------------
-
-        // Setters & Getters
-
-        public ModuleState AudioModuleState
-        {
-            get => m_audioModuleState;
-            set
-            {
-                m_audioModuleState = value;
-                m_audioManager.SetState( m_audioModuleState );
-            }
-        }
-
-        public AudioListener AudioListener
-        {
-            get => m_audioListener;
-            set
-            {
-                m_audioListener = value;
-                m_audioManager.UpdateParameters();
-            }
-        }
-
-        public LookForAudioListener FindAudioListenerInCameraIfNull
-        {
-            get => m_findAudioListenerInCameraIfNull;
-            set
-            {
-                m_findAudioListenerInCameraIfNull = value;
-                m_audioManager.UpdateParameters();
-            }
-        }
-
-        public Color AudioGraphColor
-        {
-            get => m_audioGraphColor;
-            set
-            {
-                m_audioGraphColor = value;
-                m_audioManager.UpdateParameters();
-            }
-        }
-
-        public int AudioGraphResolution
-        {
-            get => m_audioGraphResolution;
-            set
-            {
-                m_audioGraphResolution = value;
-                m_audioManager.UpdateParameters();
-            }
-        }
-
-        public int AudioTextUpdateRate
-        {
-            get => m_audioTextUpdateRate;
-            set
-            {
-                m_audioTextUpdateRate = value;
-                m_audioManager.UpdateParameters();
-            }
-        }
-
-        public FFTWindow FftWindow
-        {
-            get => m_FFTWindow;
-            set
-            {
-                m_FFTWindow = value;
-                m_audioManager.UpdateParameters();
-            }
-        }
-
-        public int SpectrumSize
-        {
-            get => m_spectrumSize;
-            set
-            {
-                m_spectrumSize = value;
-                m_audioManager.UpdateParameters();
-            }
-        }
-
-        // Getters
-
-        /// <summary>
-        /// Current audio spectrum from the specified AudioListener.
-        /// </summary>
-        public float[] Spectrum => m_audioMonitor.Spectrum;
-
-        /// <summary>
-        /// Maximum DB registered in the current spectrum.
-        /// </summary>
-        public float MaxDB => m_audioMonitor.MaxDB;
-
-
         // Advanced ---------------------------------------------------------------------
 
         // Setters & Getters
@@ -581,12 +438,10 @@ namespace Tayx.Graphy
             {
                 case ModuleType.FPS:
                 case ModuleType.RAM:
-                case ModuleType.AUDIO:
                     m_graphModulePosition = modulePosition;
 
                     m_ramManager.SetPosition( modulePosition, m_graphModuleOffset );
                     m_fpsManager.SetPosition( modulePosition, m_graphModuleOffset );
-                    m_audioManager.SetPosition( modulePosition, m_graphModuleOffset );
                     break;
 
                 case ModuleType.ADVANCED:
@@ -605,10 +460,6 @@ namespace Tayx.Graphy
 
                 case ModuleType.RAM:
                     m_ramManager.SetState( moduleState );
-                    break;
-
-                case ModuleType.AUDIO:
-                    m_audioManager.SetState( moduleState );
                     break;
 
                 case ModuleType.ADVANCED:
@@ -637,90 +488,27 @@ namespace Tayx.Graphy
 
             switch( m_modulePresetState )
             {
-                case ModulePreset.FPS_BASIC:
-                    m_fpsManager.SetState( ModuleState.BASIC );
-                    m_ramManager.SetState( ModuleState.OFF );
-                    m_audioManager.SetState( ModuleState.OFF );
-                    m_advancedData.SetState( ModuleState.OFF );
+                case ModulePreset.BASIC:
+                    m_fpsManager.SetState(ModuleState.FULL);
+                    m_ramManager.SetState(ModuleState.OFF);
+                    m_advancedData.SetState(ModuleState.OFF);
                     break;
-
-                case ModulePreset.FPS_TEXT:
-                    m_fpsManager.SetState( ModuleState.TEXT );
-                    m_ramManager.SetState( ModuleState.OFF );
-                    m_audioManager.SetState( ModuleState.OFF );
-                    m_advancedData.SetState( ModuleState.OFF );
+                case ModulePreset.MEMORY:
+                    m_fpsManager.SetState(ModuleState.FULL);
+                    m_ramManager.SetState(ModuleState.OFF);
+                    m_advancedData.SetState(ModuleState.OFF);
                     break;
-
-                case ModulePreset.FPS_FULL:
-                    m_fpsManager.SetState( ModuleState.FULL );
-                    m_ramManager.SetState( ModuleState.OFF );
-                    m_audioManager.SetState( ModuleState.OFF );
-                    m_advancedData.SetState( ModuleState.OFF );
+                case ModulePreset.SPECS:
+                    m_fpsManager.SetState(ModuleState.FULL);
+                    m_ramManager.SetState(ModuleState.OFF);
+                    m_advancedData.SetState(ModuleState.OFF);
                     break;
-
-                case ModulePreset.FPS_TEXT_RAM_TEXT:
-                    m_fpsManager.SetState( ModuleState.TEXT );
-                    m_ramManager.SetState( ModuleState.TEXT );
-                    m_audioManager.SetState( ModuleState.OFF );
-                    m_advancedData.SetState( ModuleState.OFF );
+                case ModulePreset.FULL:
+                    m_fpsManager.SetState(ModuleState.FULL);
+                    m_ramManager.SetState(ModuleState.OFF);
+                    m_advancedData.SetState(ModuleState.OFF);
                     break;
-
-                case ModulePreset.FPS_FULL_RAM_TEXT:
-                    m_fpsManager.SetState( ModuleState.FULL );
-                    m_ramManager.SetState( ModuleState.TEXT );
-                    m_audioManager.SetState( ModuleState.OFF );
-                    m_advancedData.SetState( ModuleState.OFF );
-                    break;
-
-                case ModulePreset.FPS_FULL_RAM_FULL:
-                    m_fpsManager.SetState( ModuleState.FULL );
-                    m_ramManager.SetState( ModuleState.FULL );
-                    m_audioManager.SetState( ModuleState.OFF );
-                    m_advancedData.SetState( ModuleState.OFF );
-                    break;
-
-                case ModulePreset.FPS_TEXT_RAM_TEXT_AUDIO_TEXT:
-                    m_fpsManager.SetState( ModuleState.TEXT );
-                    m_ramManager.SetState( ModuleState.TEXT );
-                    m_audioManager.SetState( ModuleState.TEXT );
-                    m_advancedData.SetState( ModuleState.OFF );
-                    break;
-
-                case ModulePreset.FPS_FULL_RAM_TEXT_AUDIO_TEXT:
-                    m_fpsManager.SetState( ModuleState.FULL );
-                    m_ramManager.SetState( ModuleState.TEXT );
-                    m_audioManager.SetState( ModuleState.TEXT );
-                    m_advancedData.SetState( ModuleState.OFF );
-                    break;
-
-                case ModulePreset.FPS_FULL_RAM_FULL_AUDIO_TEXT:
-                    m_fpsManager.SetState( ModuleState.FULL );
-                    m_ramManager.SetState( ModuleState.FULL );
-                    m_audioManager.SetState( ModuleState.TEXT );
-                    m_advancedData.SetState( ModuleState.OFF );
-                    break;
-
-                case ModulePreset.FPS_FULL_RAM_FULL_AUDIO_FULL:
-                    m_fpsManager.SetState( ModuleState.FULL );
-                    m_ramManager.SetState( ModuleState.FULL );
-                    m_audioManager.SetState( ModuleState.FULL );
-                    m_advancedData.SetState( ModuleState.OFF );
-                    break;
-
-                case ModulePreset.FPS_FULL_RAM_FULL_AUDIO_FULL_ADVANCED_FULL:
-                    m_fpsManager.SetState( ModuleState.FULL );
-                    m_ramManager.SetState( ModuleState.FULL );
-                    m_audioManager.SetState( ModuleState.FULL );
-                    m_advancedData.SetState( ModuleState.FULL );
-                    break;
-
-                case ModulePreset.FPS_BASIC_ADVANCED_FULL:
-                    m_fpsManager.SetState( ModuleState.BASIC );
-                    m_ramManager.SetState( ModuleState.OFF );
-                    m_audioManager.SetState( ModuleState.OFF );
-                    m_advancedData.SetState( ModuleState.FULL );
-                    break;
-
+                
                 default:
                     Debug.LogWarning( "[GraphyManager]::SetPreset - Tried to set a preset that is not supported." );
                     break;
@@ -747,7 +535,6 @@ namespace Tayx.Graphy
                 {
                     m_fpsManager.RestorePreviousState();
                     m_ramManager.RestorePreviousState();
-                    m_audioManager.RestorePreviousState();
                     m_advancedData.RestorePreviousState();
 
                     m_active = true;
@@ -765,7 +552,6 @@ namespace Tayx.Graphy
             {
                 m_fpsManager.SetState( ModuleState.OFF );
                 m_ramManager.SetState( ModuleState.OFF );
-                m_audioManager.SetState( ModuleState.OFF );
                 m_advancedData.SetState( ModuleState.OFF );
 
                 m_active = false;
@@ -785,21 +571,17 @@ namespace Tayx.Graphy
 
             m_fpsMonitor = GetComponentInChildren<G_FpsMonitor>( true );
             m_ramMonitor = GetComponentInChildren<G_RamMonitor>( true );
-            m_audioMonitor = GetComponentInChildren<G_AudioMonitor>( true );
 
             m_fpsManager = GetComponentInChildren<G_FpsManager>( true );
             m_ramManager = GetComponentInChildren<G_RamManager>( true );
-            m_audioManager = GetComponentInChildren<G_AudioManager>( true );
             m_advancedData = GetComponentInChildren<G_AdvancedData>( true );
 
             m_fpsManager.SetPosition( m_graphModulePosition, m_graphModuleOffset );
             m_ramManager.SetPosition( m_graphModulePosition, m_graphModuleOffset );
-            m_audioManager.SetPosition( m_graphModulePosition, m_graphModuleOffset );
             m_advancedData.SetPosition( m_advancedModulePosition, m_advancedModuleOffset );
 
             m_fpsManager.SetState( m_fpsModuleState );
             m_ramManager.SetState( m_ramModuleState );
-            m_audioManager.SetState( m_audioModuleState );
             m_advancedData.SetState( m_advancedModuleState );
 
             if( !m_enableOnStartup )
@@ -820,12 +602,10 @@ namespace Tayx.Graphy
             {
                 m_fpsManager.SetPosition( m_graphModulePosition, m_graphModuleOffset );
                 m_ramManager.SetPosition( m_graphModulePosition, m_graphModuleOffset );
-                m_audioManager.SetPosition( m_graphModulePosition, m_graphModuleOffset );
                 m_advancedData.SetPosition( m_advancedModulePosition, m_advancedModuleOffset );
 
                 m_fpsManager.SetState( m_fpsModuleState );
                 m_ramManager.SetState( m_ramModuleState );
-                m_audioManager.SetState( m_audioModuleState );
                 m_advancedData.SetState( m_advancedModuleState );
             }
         }
@@ -1054,7 +834,6 @@ namespace Tayx.Graphy
         {
             m_fpsManager.UpdateParameters();
             m_ramManager.UpdateParameters();
-            m_audioManager.UpdateParameters();
             m_advancedData.UpdateParameters();
         }
 
@@ -1062,7 +841,6 @@ namespace Tayx.Graphy
         {
             m_fpsManager.RefreshParameters();
             m_ramManager.RefreshParameters();
-            m_audioManager.RefreshParameters();
             m_advancedData.RefreshParameters();
         }
 

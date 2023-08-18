@@ -135,32 +135,6 @@ namespace Tayx.Graphy.Ram
 
                     break;
 
-                case GraphyManager.ModuleState.TEXT:
-                case GraphyManager.ModuleState.BASIC:
-                    gameObject.SetActive( true );
-                    m_childrenGameObjects.SetAllActive( true );
-                    SetGraphActive( false );
-
-                    if( m_graphyManager.Background )
-                    {
-                        m_backgroundImages.SetOneActive( 1 );
-                    }
-                    else
-                    {
-                        m_backgroundImages.SetAllActive( false );
-                    }
-
-                    break;
-
-                case GraphyManager.ModuleState.BACKGROUND:
-                    gameObject.SetActive( true );
-                    SetGraphActive( false );
-
-                    m_childrenGameObjects.SetAllActive( false );
-                    m_backgroundImages.SetAllActive( false );
-
-                    break;
-
                 case GraphyManager.ModuleState.OFF:
                     gameObject.SetActive( false );
                     break;

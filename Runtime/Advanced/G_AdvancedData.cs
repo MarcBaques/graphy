@@ -238,9 +238,7 @@ namespace Tayx.Graphy.Advanced
 
             m_currentModuleState = state;
 
-            bool active = state == GraphyManager.ModuleState.FULL
-                          || state == GraphyManager.ModuleState.TEXT
-                          || state == GraphyManager.ModuleState.BASIC;
+            bool active = state == GraphyManager.ModuleState.FULL;
 
             gameObject.SetActive( active );
 

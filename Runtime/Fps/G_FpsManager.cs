@@ -143,47 +143,6 @@ namespace Tayx.Graphy.Fps
 
                     break;
 
-                case GraphyManager.ModuleState.TEXT:
-                    gameObject.SetActive( true );
-                    m_childrenGameObjects.SetAllActive( true );
-                    SetGraphActive( false );
-
-                    if( m_graphyManager.Background )
-                    {
-                        m_backgroundImages.SetOneActive( 1 );
-                    }
-                    else
-                    {
-                        m_backgroundImages.SetAllActive( false );
-                    }
-
-                    break;
-
-                case GraphyManager.ModuleState.BASIC:
-                    gameObject.SetActive( true );
-                    m_childrenGameObjects.SetAllActive( true );
-                    m_nonBasicTextGameObjects.SetAllActive( false );
-                    SetGraphActive( false );
-
-                    if( m_graphyManager.Background )
-                    {
-                        m_backgroundImages.SetOneActive( 2 );
-                    }
-                    else
-                    {
-                        m_backgroundImages.SetAllActive( false );
-                    }
-
-                    break;
-
-                case GraphyManager.ModuleState.BACKGROUND:
-                    gameObject.SetActive( true );
-                    m_childrenGameObjects.SetAllActive( false );
-                    SetGraphActive( false );
-
-                    m_backgroundImages.SetAllActive( false );
-                    break;
-
                 case GraphyManager.ModuleState.OFF:
                     gameObject.SetActive( false );
                     break;

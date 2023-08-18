@@ -19,7 +19,6 @@ using Debug = UnityEngine.Debug;
 using System.Collections.Generic;
 using System.Linq;
 
-using Tayx.Graphy.Audio;
 using Tayx.Graphy.Fps;
 using Tayx.Graphy.Ram;
 using Tayx.Graphy.Utils;
@@ -171,7 +170,6 @@ namespace Tayx.Graphy
 
         private G_FpsMonitor m_fpsMonitor = null;
         private G_RamMonitor m_ramMonitor = null;
-        private G_AudioMonitor m_audioMonitor = null;
 
         #endregion
 
@@ -181,7 +179,6 @@ namespace Tayx.Graphy
         {
             m_fpsMonitor = GetComponentInChildren<G_FpsMonitor>();
             m_ramMonitor = GetComponentInChildren<G_RamMonitor>();
-            m_audioMonitor = GetComponentInChildren<G_AudioMonitor>();
         }
 
         private void Update()
@@ -503,9 +500,6 @@ namespace Tayx.Graphy
                     return m_ramMonitor != null ? m_ramMonitor.AllocatedRam : 0;
                 case DebugVariable.Ram_Mono:
                     return m_ramMonitor != null ? m_ramMonitor.AllocatedRam : 0;
-
-                case DebugVariable.Audio_DB:
-                    return m_audioMonitor != null ? m_audioMonitor.MaxDB : 0;
 
                 default:
                     return 0;
